@@ -11,33 +11,47 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Install AutoHotkey v2
-        run: choco install autohotkey2 -y
-      - name: Download and Prepare Compiler
+      - name: Download AutoHotkey v2 and Compiler
         shell: powershell
         run: |
-          # 1. Get the download URL for the latest Ahk2Exe release
-          $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest"
-          $downloadUrl = $latestRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
+          # 1. Download AutoHotkey v2 (The Engine)
+          Write-Host "Fetching latest AutoHotkey v2..."
+          $ahkRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/AutoHotkey/releases/latest"
+          $ahkUrl = $ahkRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
+          Invoke-WebRequest -Uri $ahkUrl -OutFile "AutoHotkey.zip"
+          Expand-Archive -Path "AutoHotkey.zip" -DestinationPath "AHK_v2"
           
-          Write-Host "Downloading Compiler from: $downloadUrl"
-          
-          # 2. Download and Extract
-          Invoke-WebRequest -Uri $downloadUrl -OutFile "Ahk2Exe.zip"
+          # 2. Download Ahk2Exe (The Compiler)
+          Write-Host "Fetching latest Ahk2Exe..."
+          $compilerRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest"
+          $compilerUrl = $compilerRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
+          Invoke-WebRequest -Uri $compilerUrl -OutFile "Ahk2Exe.zip"
           Expand-Archive -Path "Ahk2Exe.zip" -DestinationPath "Compiler"
+          Write-Host "Tools prepared successfully."
       - name: Compile LangConvert Application
+        shell: powershell
         run: |
-          # Point explicitly to the installed v2 base file
-          .\Compiler\Ahk2Exe.exe /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
+          $baseFile = "AHK_v2\AutoHotkey64.exe"
+          $compiler = "Compiler\Ahk2Exe.exe"
+          
+          # Run Compiler
+          & $compiler /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base $baseFile
       
       - name: Compile Setup Script
+        shell: powershell
         run: |
-          .\Compiler\Ahk2Exe.exe /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
-      - name: Verify Output Exists
+          $baseFile = "AHK_v2\AutoHotkey64.exe"
+          $compiler = "Compiler\Ahk2Exe.exe"
+          
+          # Run Compiler
+          & $compiler /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base $baseFile
+      
+      - name: Verify Output
+        shell: powershell
         run: |
-           if (!(Test-Path "langover.exe")) { throw "langover.exe was not created!" }
-           if (!(Test-Path "Setup.exe")) { throw "Setup.exe was not created!" }
+           if (!(Test-Path "langover.exe")) { throw "Error: langover.exe was not created." }
+           if (!(Test-Path "Setup.exe")) { throw "Error: Setup.exe was not created." }
+           Write-Host "Build verified."
       - name: Create Zip Archive
         run: |
           Compress-Archive -Path "Setup.exe", "langover.exe", "DiscountLogo.png", "FinalGreen.ico", "FinalRed.ico", "README.md" -DestinationPath "LangConvert_Install.zip"
