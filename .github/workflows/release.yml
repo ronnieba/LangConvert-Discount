@@ -12,26 +12,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Install AutoHotkey
+      - name: Install AutoHotkey Base
         run: choco install autohotkey -y
-      - name: Compile LangConvert
+      - name: Download and Prepare Compiler
         shell: powershell
         run: |
-          # Find Ahk2Exe automatically
-          $compilerPath = Get-ChildItem -Path "C:\Program Files" -Filter "Ahk2Exe.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+          # 1. Get the download URL for the latest Ahk2Exe release from GitHub API
+          $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest"
+          $downloadUrl = $latestRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
           
-          if (-not $compilerPath) {
-              Write-Error "Could not find Ahk2Exe.exe anywhere in C:\Program Files"
+          Write-Host "Downloading Compiler from: $downloadUrl"
+          
+          # 2. Download and Extract
+          Invoke-WebRequest -Uri $downloadUrl -OutFile "Ahk2Exe.zip"
+          Expand-Archive -Path "Ahk2Exe.zip" -DestinationPath "Compiler"
+          
+          # 3. Verify existence
+          if (-not (Test-Path "Compiler\Ahk2Exe.exe")) {
+              Write-Error "Compiler executable not found after extraction!"
               exit 1
           }
-          
-          Write-Host "Compiler found at: $compilerPath"
-          
-          # Compile Main App
-          & $compilerPath /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
-          
-          # Compile Setup
-          & $compilerPath /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+      - name: Compile LangConvert Application
+        run: |
+          .\Compiler\Ahk2Exe.exe /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+      
+      - name: Compile Setup Script
+        run: |
+          .\Compiler\Ahk2Exe.exe /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
       - name: Create Zip Archive
         run: |
           Compress-Archive -Path "Setup.exe", "langover.exe", "DiscountLogo.png", "FinalGreen.ico", "FinalRed.ico", "README.md" -DestinationPath "LangConvert_Install.zip"
