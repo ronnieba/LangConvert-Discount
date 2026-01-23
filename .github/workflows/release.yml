@@ -2,7 +2,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # Trigger on version tags
+      - 'v*'
 jobs:
   build:
     name: Build and Release
@@ -12,20 +12,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Install AutoHotkey (Base)
-        run: choco install autohotkey.install -y
-      - name: Download Compiler (Ahk2Exe)
+      - name: Install AutoHotkey
+        run: choco install autohotkey -y
+      - name: Compile LangConvert
+        shell: powershell
         run: |
-          # Download Ahk2Exe explicitly
-          Invoke-WebRequest -Uri "https://github.com/AutoHotkey/Ahk2Exe/releases/download/Ahk2Exe1.3.7/Ahk2Exe1.3.7.zip" -OutFile "Ahk2Exe.zip"
-          Expand-Archive -Path "Ahk2Exe.zip" -DestinationPath "Compiler"
-      - name: Compile LangConvert Application
-        run: |
-          .\Compiler\Ahk2Exe.exe /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
-      
-      - name: Compile Setup Script
-        run: |
-          .\Compiler\Ahk2Exe.exe /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          # Find Ahk2Exe automatically
+          $compilerPath = Get-ChildItem -Path "C:\Program Files" -Filter "Ahk2Exe.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+          
+          if (-not $compilerPath) {
+              Write-Error "Could not find Ahk2Exe.exe anywhere in C:\Program Files"
+              exit 1
+          }
+          
+          Write-Host "Compiler found at: $compilerPath"
+          
+          # Compile Main App
+          & $compilerPath /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          
+          # Compile Setup
+          & $compilerPath /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
       - name: Create Zip Archive
         run: |
           Compress-Archive -Path "Setup.exe", "langover.exe", "DiscountLogo.png", "FinalGreen.ico", "FinalRed.ico", "README.md" -DestinationPath "LangConvert_Install.zip"
