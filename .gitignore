@@ -1,0 +1,17 @@
+# --- Windows Trash ---
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- AutoHotkey / Compilation ---
+*.upx
+*.bak
+*.tmp
+
+# --- Build Artifacts (תוצרים - לא מעלים לקוד, מעלים ל-Releases) ---
+*.exe
+*.zip
+
+# --- User Settings (הגדרות אישיות שלא צריכות לעלות לענן) ---
+settings.ini
+test_*.ahk
