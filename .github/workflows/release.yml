@@ -12,12 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Install AutoHotkey Base
-        run: choco install autohotkey -y
+      - name: Install AutoHotkey v2
+        run: choco install autohotkey2 -y
       - name: Download and Prepare Compiler
         shell: powershell
         run: |
-          # 1. Get the download URL for the latest Ahk2Exe release from GitHub API
+          # 1. Get the download URL for the latest Ahk2Exe release
           $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest"
           $downloadUrl = $latestRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
           
@@ -26,19 +26,18 @@ jobs:
           # 2. Download and Extract
           Invoke-WebRequest -Uri $downloadUrl -OutFile "Ahk2Exe.zip"
           Expand-Archive -Path "Ahk2Exe.zip" -DestinationPath "Compiler"
-          
-          # 3. Verify existence
-          if (-not (Test-Path "Compiler\Ahk2Exe.exe")) {
-              Write-Error "Compiler executable not found after extraction!"
-              exit 1
-          }
       - name: Compile LangConvert Application
         run: |
-          .\Compiler\Ahk2Exe.exe /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          # Point explicitly to the installed v2 base file
+          .\Compiler\Ahk2Exe.exe /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
       
       - name: Compile Setup Script
         run: |
-          .\Compiler\Ahk2Exe.exe /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          .\Compiler\Ahk2Exe.exe /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
+      - name: Verify Output Exists
+        run: |
+           if (!(Test-Path "langover.exe")) { throw "langover.exe was not created!" }
+           if (!(Test-Path "Setup.exe")) { throw "Setup.exe was not created!" }
       - name: Create Zip Archive
         run: |
           Compress-Archive -Path "Setup.exe", "langover.exe", "DiscountLogo.png", "FinalGreen.ico", "FinalRed.ico", "README.md" -DestinationPath "LangConvert_Install.zip"
