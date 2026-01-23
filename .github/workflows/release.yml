@@ -3,6 +3,9 @@ on:
   push:
     tags:
       - 'v*'
+# Grant write permission to create releases
+permissions:
+  contents: write
 jobs:
   build:
     name: Build and Release
