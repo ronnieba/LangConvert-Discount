@@ -2,7 +2,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # Trigger on version tags, e.g. v1.0.0
+      - 'v*' # Trigger on version tags
 jobs:
   build:
     name: Build and Release
@@ -12,21 +12,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Install AutoHotkey and Compile
+      - name: Install AutoHotkey (Base)
+        run: choco install autohotkey.install -y
+      - name: Download Compiler (Ahk2Exe)
         run: |
-          choco install autohotkey -y
-          # Add Compiler to PATH
-          echo "C:\Program Files\AutoHotkey\Compiler" >> $env:GITHUB_PATH
-      
+          # Download Ahk2Exe explicitly
+          Invoke-WebRequest -Uri "https://github.com/AutoHotkey/Ahk2Exe/releases/download/Ahk2Exe1.3.7/Ahk2Exe1.3.7.zip" -OutFile "Ahk2Exe.zip"
+          Expand-Archive -Path "Ahk2Exe.zip" -DestinationPath "Compiler"
       - name: Compile LangConvert Application
-        # We need to specify the base file explicitly if not found automatically, 
-        # but standard install usually works. If 'Ahk2Exe' is not found, we use full path.
         run: |
-          & "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          .\Compiler\Ahk2Exe.exe /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
       
       - name: Compile Setup Script
         run: |
-          & "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          .\Compiler\Ahk2Exe.exe /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
       - name: Create Zip Archive
         run: |
           Compress-Archive -Path "Setup.exe", "langover.exe", "DiscountLogo.png", "FinalGreen.ico", "FinalRed.ico", "README.md" -DestinationPath "LangConvert_Install.zip"
