@@ -12,18 +12,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup AutoHotkey
-        uses: thqby/setup-autohotkey@v1
-        with:
-          version: 'v2.0.10' # Pin to a recent stable version
+      - name: Install AutoHotkey and Compile
+        run: |
+          choco install autohotkey -y
+          # Add Compiler to PATH
+          echo "C:\Program Files\AutoHotkey\Compiler" >> $env:GITHUB_PATH
       
       - name: Compile LangConvert Application
+        # We need to specify the base file explicitly if not found automatically, 
+        # but standard install usually works. If 'Ahk2Exe' is not found, we use full path.
         run: |
-          Ahk2Exe.exe /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          & "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
       
       - name: Compile Setup Script
         run: |
-          Ahk2Exe.exe /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
+          & "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base "Unicode 64-bit"
       - name: Create Zip Archive
         run: |
           Compress-Archive -Path "Setup.exe", "langover.exe", "DiscountLogo.png", "FinalGreen.ico", "FinalRed.ico", "README.md" -DestinationPath "LangConvert_Install.zip"
