@@ -16,14 +16,15 @@ jobs:
         run: |
           # 1. Download AutoHotkey v2
           Write-Host "Fetching latest AutoHotkey v2..."
-          $ahkRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/AutoHotkey/releases/latest"
+          $headers = @{ Authorization = "token ${{ secrets.GITHUB_TOKEN }}" }
+          $ahkRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/AutoHotkey/releases/latest" -Headers $headers
           $ahkUrl = $ahkRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
           Invoke-WebRequest -Uri $ahkUrl -OutFile "AutoHotkey.zip"
           Expand-Archive -Path "AutoHotkey.zip" -DestinationPath "AHK_v2"
           
           # 2. Download Ahk2Exe
           Write-Host "Fetching latest Ahk2Exe..."
-          $compilerRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest"
+          $compilerRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest" -Headers $headers
           $compilerUrl = $compilerRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
           Invoke-WebRequest -Uri $compilerUrl -OutFile "Ahk2Exe.zip"
           Expand-Archive -Path "Ahk2Exe.zip" -DestinationPath "Compiler"
