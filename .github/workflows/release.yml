@@ -3,9 +3,6 @@ on:
   push:
     tags:
       - 'v*'
-# Grant write permission to create releases
-permissions:
-  contents: write
 jobs:
   build:
     name: Build and Release
@@ -14,47 +11,58 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download AutoHotkey v2 and Compiler
+      - name: Download Tools
         shell: powershell
         run: |
-          # 1. Download AutoHotkey v2 (The Engine)
+          # 1. Download AutoHotkey v2
           Write-Host "Fetching latest AutoHotkey v2..."
           $ahkRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/AutoHotkey/releases/latest"
           $ahkUrl = $ahkRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
           Invoke-WebRequest -Uri $ahkUrl -OutFile "AutoHotkey.zip"
           Expand-Archive -Path "AutoHotkey.zip" -DestinationPath "AHK_v2"
           
-          # 2. Download Ahk2Exe (The Compiler)
+          # 2. Download Ahk2Exe
           Write-Host "Fetching latest Ahk2Exe..."
           $compilerRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest"
           $compilerUrl = $compilerRelease.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -ExpandProperty browser_download_url -First 1
           Invoke-WebRequest -Uri $compilerUrl -OutFile "Ahk2Exe.zip"
           Expand-Archive -Path "Ahk2Exe.zip" -DestinationPath "Compiler"
-          Write-Host "Tools prepared successfully."
-      - name: Compile LangConvert Application
+
+      - name: Compile Application
         shell: powershell
         run: |
-          $baseFile = "AHK_v2\AutoHotkey64.exe"
-          $compiler = "Compiler\Ahk2Exe.exe"
+          # Dynamically find the executables
+          $entries = Get-ChildItem -Path "AHK_v2" -Filter "AutoHotkey64.exe" -Recurse
+          if (!$entries) { throw "Could not find AutoHotkey64.exe" }
+          $baseFile = $entries[0].FullName
+          Write-Host "Using Base File: $baseFile"
           
-          # Run Compiler
+          $entries2 = Get-ChildItem -Path "Compiler" -Filter "Ahk2Exe.exe" -Recurse
+          if (!$entries2) { throw "Could not find Ahk2Exe.exe" }
+          $compiler = $entries2[0].FullName
+          Write-Host "Using Compiler: $compiler"
+          
+          # Compile LangConvert
+          Write-Host "Compiling langover.ahk..."
           & $compiler /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base $baseFile
-      
-      - name: Compile Setup Script
-        shell: powershell
-        run: |
-          $baseFile = "AHK_v2\AutoHotkey64.exe"
-          $compiler = "Compiler\Ahk2Exe.exe"
           
-          # Run Compiler
+          # Compile Setup
+          # NOTE: Setup.ahk will FileInstall langover.exe, so it must exist first (which it does now)
+          Write-Host "Compiling Setup.ahk..."
           & $compiler /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base $baseFile
-      
       - name: Verify Output
         shell: powershell
         run: |
-           if (!(Test-Path "langover.exe")) { throw "Error: langover.exe was not created." }
-           if (!(Test-Path "Setup.exe")) { throw "Error: Setup.exe was not created." }
-           Write-Host "Build verified."
+           if (!(Test-Path "langover.exe")) { 
+              Write-Error "Error: langover.exe was not created."
+              Get-ChildItem . 
+              exit 1 
+           }
+           if (!(Test-Path "Setup.exe")) { 
+              Write-Error "Error: Setup.exe was not created." 
+              exit 1 
+           }
+           Write-Host "Build verified success!"
       - name: Create Zip Archive
         run: |
           Compress-Archive -Path "Setup.exe", "langover.exe", "DiscountLogo.png", "FinalGreen.ico", "FinalRed.ico", "README.md" -DestinationPath "LangConvert_Install.zip"
