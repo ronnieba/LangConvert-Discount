@@ -44,12 +44,16 @@ jobs:
           
           # Compile LangConvert
           Write-Host "Compiling langover.ahk..."
-          & $compiler /in "langover.ahk" /out "langover.exe" /icon "FinalGreen.ico" /base $baseFile
+          $process = Start-Process -FilePath $compiler -ArgumentList "/in `"$pwd\langover.ahk`" /out `"$pwd\langover.exe`" /icon `"$pwd\FinalGreen.ico`" /base `"$baseFile`"" -Wait -PassThru -NoNewWindow
+          if ($process.ExitCode -ne 0) { throw "Compilation of langover.ahk failed with exit code $($process.ExitCode)" }
+          if (!(Test-Path "langover.exe")) { throw "langover.exe not found after compilation" }
           
           # Compile Setup
-          # NOTE: Setup.ahk will FileInstall langover.exe, so it must exist first (which it does now)
+          # NOTE: Setup.ahk will FileInstall langover.exe, so it must exist first
           Write-Host "Compiling Setup.ahk..."
-          & $compiler /in "Setup.ahk" /out "Setup.exe" /icon "FinalGreen.ico" /base $baseFile
+          $process2 = Start-Process -FilePath $compiler -ArgumentList "/in `"$pwd\Setup.ahk`" /out `"$pwd\Setup.exe`" /icon `"$pwd\FinalGreen.ico`" /base `"$baseFile`"" -Wait -PassThru -NoNewWindow
+          if ($process2.ExitCode -ne 0) { throw "Compilation of Setup.ahk failed with exit code $($process2.ExitCode)" }
+          if (!(Test-Path "Setup.exe")) { throw "Setup.exe not found after compilation" }
       - name: Verify Output
         shell: powershell
         run: |
