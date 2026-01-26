@@ -98,7 +98,7 @@ RunInstall(*) {
              FileAppend "[Settings]`nTheme=Light`nLanguage=English`nHotkey=^!1`n", destDir "\settings.ini"
         }
     } catch as err {
-        MsgBox("שגיאה בהעתקת הקבצים: " err.Message, "Error", "IconHand")
+        MsgBox("שגיאה בהעתקת הקבצים: " err.Message, "Error", "Iconx")
         btnInstall.Enabled := true
         return
     }
@@ -126,7 +126,7 @@ RunInstall(*) {
     MyGui["InstallProgress"].Value := 100
     Sleep(500)
     
-    Result := MsgBox("ההתקנה הסתיימה בהצלחה!`n`nהאם ברצונך להפעיל את התוכנה כעת?", "הצלחה", "YesNo IconAsterisk")
+    Result := MsgBox("ההתקנה הסתיימה בהצלחה!`n`nהאם ברצונך להפעיל את התוכנה כעת?", "הצלחה", "YesNo Iconi")
     
     if (Result == "Yes") {
         try {
