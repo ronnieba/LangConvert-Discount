@@ -51,7 +51,7 @@ InitialLogo := (CurrentTheme == "Dark") ? LogoDark : LogoLight
 MyPic := MyGui.Add("Picture", "x50 w200 h-1", InitialLogo)
 
 lblHeader := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Developed for Discount Bank")
-lblVersion := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Version 1.17 - Jan 2026")
+lblVersion := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Version 1.22 - Jan 2026")
 lblCredit := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Ben-Avi Ronnie")
 MyGui.Add("Text", "x10 w280 h2 0x10") 
 lblStatus := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "")
@@ -205,7 +205,7 @@ RunTransformation(Mode) {
 UpdateUI() {
     if (CurrentLang == "English") {
         lblHeader.Text := "Developed for Discount Bank"
-        lblVersion.Text := "Version 1.06 - Dec 2025"
+        lblVersion.Text := "Version 1.22 - Jan 2026"
         lblCredit.Text := "Ben-Avi Ronnie"
         lblStatus.Text := "Status: Running"
         lblHint.Text := "Tip: Select text to convert only selection"
@@ -222,7 +222,7 @@ UpdateUI() {
         A_IconTip := "LangConvert - Press " . CurrentHotkey . " to convert"
     } else {
         lblHeader.Text := "פותח עבור בנק דיסקונט"
-        lblVersion.Text := "גרסה 1.17 - ינואר 2026"
+        lblVersion.Text := "גרסה 1.22 - ינואר 2026"
         lblCredit.Text := "בן-אבי רוני"
         lblStatus.Text := IsActive ? "סטטוס: פעיל" : "סטטוס: לא פעיל"
         lblHint.Text := "טיפ: סמן טקסט כדי להמיר רק אותו"
