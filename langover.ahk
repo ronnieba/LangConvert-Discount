@@ -51,7 +51,7 @@ InitialLogo := (CurrentTheme == "Dark") ? LogoDark : LogoLight
 MyPic := MyGui.Add("Picture", "x50 w200 h-1", InitialLogo)
 
 lblHeader := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Developed for Discount Bank")
-lblVersion := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Version 1.23 - Feb 2026")
+lblVersion := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Version 1.24 - Feb 2026")
 lblCredit := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "Ben-Avi Ronnie")
 MyGui.Add("Text", "x10 w280 h2 0x10") 
 lblStatus := MyGui.Add("Text", "x0 w300 Center BackgroundTrans", "")
@@ -205,7 +205,7 @@ RunTransformation(Mode) {
 UpdateUI() {
     if (CurrentLang == "English") {
         lblHeader.Text := "Developed for Discount Bank"
-        lblVersion.Text := "Version 1.23 - Feb 2026"
+        lblVersion.Text := "Version 1.24 - Feb 2026"
         lblCredit.Text := "Ben-Avi Ronnie"
         lblStatus.Text := "Status: Running"
         lblHint.Text := "Tip: Select text to convert only selection"
@@ -222,7 +222,7 @@ UpdateUI() {
         A_IconTip := "LangConvert - Press " . CurrentHotkey . " to convert"
     } else {
         lblHeader.Text := "פותח עבור בנק דיסקונט"
-        lblVersion.Text := "גרסה: 1.23 (פברואר 2026)"
+        lblVersion.Text := "גרסה: 1.24 (פברואר 2026)"
         lblCredit.Text := "בן-אבי רוני"
         lblStatus.Text := IsActive ? "סטטוס: פעיל" : "סטטוס: לא פעיל"
         lblHint.Text := "טיפ: סמן טקסט כדי להמיר רק אותו"
@@ -456,7 +456,8 @@ SetKeyboardLayout(langID) {
 IsWordCharacter(char) {
     code := Ord(char)
     ; A-Z (65-90), a-z (97-122), Hebrew (1488-1514 / 0x05D0-0x05EA approx)
-    return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 0x0590 && code <= 0x05FF)
+    ; Also include specific punctuation mapped to Hebrew keys
+    return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 0x0590 && code <= 0x05FF) || (char == ",") || (char == ".") || (char == "/") || (char == ";") || (char == "'")
 }
 
 ProcessWord(word) {
@@ -510,6 +511,14 @@ ProcessWord(word) {
         ; Result Hakuo.
         ; Let's preserve this default unless user enabled Smart Settings.
         return TransformString(word, hebrewToEnglish)
+    }
+    
+    ; Case 4: Pure Punctuation / Numbers (e.g. ",,," or "123,")
+    ; If the word contains english punctuation mapped to Hebrew (like , or .)
+    if (!hasHebrew && !hasEnglish) {
+        if (RegExMatch(word, "[,./;']")) {
+            return TransformToHebrew(word, false)
+        }
     }
     
     return word ; Fallback (Numbers etc)
