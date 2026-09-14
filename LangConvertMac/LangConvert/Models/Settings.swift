@@ -84,15 +84,11 @@ public final class Settings: ObservableObject {
         self.convertUppercase = defaults.object(forKey: Keys.convertUppercase) as? Bool ?? false
         self.smartTitleCase = defaults.object(forKey: Keys.smartTitleCase) as? Bool ?? false
         
-        self.hotkeyKeyCode = UInt32(defaults.integer(forKey: Keys.hotkeyKeyCode))
-        if self.hotkeyKeyCode == 0 {
-            self.hotkeyKeyCode = Self.defaultKeyCode
-        }
+        let storedKeyCode = UInt32(defaults.integer(forKey: Keys.hotkeyKeyCode))
+        self.hotkeyKeyCode = storedKeyCode == 0 ? Self.defaultKeyCode : storedKeyCode
         
-        self.hotkeyModifiers = UInt32(defaults.integer(forKey: Keys.hotkeyModifiers))
-        if self.hotkeyModifiers == 0 {
-            self.hotkeyModifiers = Self.defaultModifiers
-        }
+        let storedModifiers = UInt32(defaults.integer(forKey: Keys.hotkeyModifiers))
+        self.hotkeyModifiers = storedModifiers == 0 ? Self.defaultModifiers : storedModifiers
         
         self.openAtLogin = defaults.object(forKey: Keys.openAtLogin) as? Bool ?? false
     }
