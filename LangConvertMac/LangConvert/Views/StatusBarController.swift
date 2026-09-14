@@ -15,6 +15,7 @@ final class StatusBarController: NSObject, ObservableObject {
         setupStatusItem()
         setupMenu()
         observeSettings()
+        observeAccessibilityChanges()
     }
     
     // MARK: - Setup
@@ -57,6 +58,31 @@ final class StatusBarController: NSObject, ObservableObject {
             .store(in: &cancellables)
     }
     
+    private func observeAccessibilityChanges() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(accessibilityDidChange),
+            name: .accessibilityPermissionChanged,
+            object: nil
+        )
+        
+        HotkeyManager.shared.$accessibilityGranted
+            .sink { [weak self] _ in
+                DispatchQueue.main.async {
+                    self?.updateStatusIcon()
+                    self?.updateMenu()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    @objc private func accessibilityDidChange() {
+        DispatchQueue.main.async { [weak self] in
+            self?.updateStatusIcon()
+            self?.updateMenu()
+        }
+    }
+    
     private func updatePreferencesWindowAppearance() {
         preferencesWindow?.appearance = Settings.shared.appearance.nsAppearance
     }
@@ -67,7 +93,7 @@ final class StatusBarController: NSObject, ObservableObject {
         guard let button = statusItem.button else { return }
         
         let isEnabled = Settings.shared.isEnabled
-        let hasAccess = HotkeyManager.hasAccessibilityPermission
+        let hasAccess = HotkeyManager.shared.accessibilityGranted
         
         let symbolName: String
         if !hasAccess {
@@ -83,7 +109,7 @@ final class StatusBarController: NSObject, ObservableObject {
             button.image = configuredImage
         }
         
-        button.appearsDisabled = !isEnabled || !hasAccess
+        button.appearsDisabled = !isEnabled
         
         let settings = Settings.shared
         let hotkeyStr = settings.hotkeyDisplayString
@@ -91,6 +117,9 @@ final class StatusBarController: NSObject, ObservableObject {
         
         if !hasAccess {
             tooltipLines.append("⚠️ " + settings.localized(.accessibilityRequired))
+            tooltipLines.append(settings.language == .hebrew
+                ? "מצב מוגבל פעיל"
+                : "Limited mode active")
         }
         
         let status = isEnabled
@@ -108,12 +137,23 @@ final class StatusBarController: NSObject, ObservableObject {
         menu.removeAllItems()
         
         let settings = Settings.shared
-        let hasAccess = HotkeyManager.hasAccessibilityPermission
+        let hasAccess = HotkeyManager.shared.accessibilityGranted
         
         if !hasAccess {
             let warningItem = NSMenuItem(title: "⚠️ " + settings.localized(.accessibilityRequired), action: #selector(openAccessibility), keyEquivalent: "")
             warningItem.target = self
             menu.addItem(warningItem)
+            
+            let modeItem = NSMenuItem(
+                title: settings.language == .hebrew
+                    ? "מצב מוגבל: העתק → קיצור → הדבק"
+                    : "Limited: Copy → Hotkey → Paste",
+                action: nil,
+                keyEquivalent: ""
+            )
+            modeItem.isEnabled = false
+            modeItem.indentationLevel = 1
+            menu.addItem(modeItem)
             
             let hintItem = NSMenuItem(
                 title: settings.language == .hebrew
@@ -195,7 +235,7 @@ final class StatusBarController: NSObject, ObservableObject {
             let contentView = PreferencesView()
             
             preferencesWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 340, height: 520),
+                contentRect: NSRect(x: 0, y: 0, width: 340, height: 560),
                 styleMask: [.titled, .closable, .miniaturizable],
                 backing: .buffered,
                 defer: false

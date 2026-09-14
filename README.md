@@ -25,13 +25,53 @@
 
 האפליקציה דורשת הרשאת נגישות כדי:
 - לרשום קיצורי מקשים גלובליים
-- לבצע פעולות העתקה והדבקה
+- לבצע פעולות העתקה והדבקה אוטומטיות
 
 **כיצד להפעיל:**
 1. פתח **System Settings** (הגדרות מערכת)
 2. עבור ל-**Privacy & Security** → **Accessibility**
 3. לחץ על הכפתור **+** והוסף את LangConvert
 4. הפעל את הסימון ליד LangConvert
+
+### ⚠️ מצב מוגבל (Fallback Mode)
+
+אם הרשאת נגישות לא פעילה (או `AXIsProcessTrusted()` מחזיר false למרות שההרשאה מופעלת), האפליקציה עוברת למצב מוגבל:
+
+**זרימת עבודה במצב מוגבל:**
+1. סמן טקסט ולחץ `⌘C` (העתק) ידנית
+2. לחץ על קיצור המקלדת (⌃⌥1)
+3. לחץ `⌘V` (הדבק) ידנית
+
+במצב זה הלוח **לא** משוחזר אוטומטית - הטקסט המומר נשאר בלוח.
+
+### 🏢 מחשבים ארגוניים / Managed Macs
+
+במחשבים עם MDM או הגדרות אבטחה ארגוניות, יתכן מצב בו:
+- הסימון ב-System Settings מופעל
+- אבל `AXIsProcessTrusted()` עדיין מחזיר `false`
+
+**פתרונות מומלצים:**
+
+1. **התקנה קבועה ב-/Applications:**
+   ```bash
+   # בנה את האפליקציה ב-Xcode
+   # העתק את LangConvert.app ל:
+   /Applications/LangConvert.app
+   ```
+
+2. **הסר והוסף מחדש ב-Accessibility:**
+   - פתח System Settings → Privacy & Security → Accessibility
+   - הסר את LangConvert מהרשימה (לחץ -)
+   - הוסף את `/Applications/LangConvert.app` (לחץ +)
+   - ודא שהסימון מופעל
+
+3. **חתימה עם Apple Development Team (מומלץ):**
+   - ב-Xcode: Signing & Capabilities → Team → בחר צוות פיתוח
+   - זה מבטיח ש-TCC יזהה את האפליקציה נכון
+
+4. **Debug builds:**
+   - Ad-hoc signed builds (`CODE_SIGN_IDENTITY=-`) עלולים לאבד הרשאות אחרי rebuild
+   - לפיתוח מקומי זה תקין, אבל לשימוש יומיומי מומלץ להתקין copy קבוע
 
 ### 🚀 התקנה והרצה
 

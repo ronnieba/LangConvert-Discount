@@ -13,11 +13,25 @@ public final class ClipboardManager {
     // MARK: - Public API
     
     /// Perform conversion on selected or all text
+    /// Uses different strategies based on accessibility permission:
+    /// - With AX: select/copy → convert → paste → restore clipboard
+    /// - Without AX: convert current clipboard in-place (fallback)
     /// - Returns: true if conversion was performed, false otherwise
     @discardableResult
     public func performConversion() -> Bool {
         guard Settings.shared.isEnabled else { return false }
         
+        if AXIsProcessTrusted() {
+            return performConversionWithAccessibility()
+        } else {
+            return performConversionFallback()
+        }
+    }
+    
+    // MARK: - Accessibility Mode (Full Feature)
+    
+    /// Full conversion with Cmd+C/V simulation and clipboard restore
+    private func performConversionWithAccessibility() -> Bool {
         let savedItems = saveClipboard()
         
         clearClipboard()
@@ -57,6 +71,38 @@ public final class ClipboardManager {
         usleep(200_000)
         
         restoreClipboard(savedItems)
+        
+        return true
+    }
+    
+    // MARK: - Fallback Mode (No Accessibility)
+    
+    /// Fallback: convert whatever is currently in the clipboard in-place
+    /// User workflow: select text → Cmd+C → trigger hotkey → Cmd+V
+    /// This mode does NOT simulate keys and does NOT restore clipboard
+    private func performConversionFallback() -> Bool {
+        let text = getText()
+        
+        guard !text.isEmpty else {
+            print("[ClipboardManager] Fallback mode: clipboard is empty, nothing to convert")
+            return false
+        }
+        
+        let settings = Settings.shared
+        let converted = ConversionService.shared.convert(
+            text,
+            convertUppercase: settings.convertUppercase,
+            smartTitleCase: settings.smartTitleCase
+        )
+        
+        if converted == text {
+            print("[ClipboardManager] Fallback mode: text unchanged after conversion")
+            return false
+        }
+        
+        setText(converted)
+        
+        print("[ClipboardManager] Fallback mode: converted clipboard text (\(text.count) → \(converted.count) chars)")
         
         return true
     }
