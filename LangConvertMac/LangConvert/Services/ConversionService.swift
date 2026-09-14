@@ -24,7 +24,36 @@ public final class ConversionService {
         ".": "/", "ף": ";", ",": "'"
     ]
     
-    private init() {}
+    /// Set of all mapped characters (for word boundary detection)
+    private let mappedCharacters: Set<Character>
+    
+    private init() {
+        var chars = Set<Character>()
+        for key in ConversionService.staticEnglishToHebrew.keys {
+            chars.insert(key)
+        }
+        for key in ConversionService.staticHebrewToEnglish.keys {
+            chars.insert(key)
+        }
+        self.mappedCharacters = chars
+    }
+    
+    /// Static maps for use in init
+    private static let staticEnglishToHebrew: [Character: Character] = [
+        "q": "/", "w": "'", "e": "ק", "r": "ר", "t": "א", "y": "ט", "u": "ו",
+        "i": "ן", "o": "ם", "p": "פ", "a": "ש", "s": "ד", "d": "ג", "f": "כ",
+        "g": "ע", "h": "י", "j": "ח", "k": "ל", "l": "ך", "z": "ז", "x": "ס",
+        "c": "ב", "v": "ה", "b": "נ", "n": "מ", "m": "צ", ",": "ת", ".": "ץ",
+        "/": ".", ";": "ף", "'": ","
+    ]
+    
+    private static let staticHebrewToEnglish: [Character: Character] = [
+        "/": "q", "'": "w", "ק": "e", "ר": "r", "א": "t", "ט": "y", "ו": "u",
+        "ן": "i", "ם": "o", "פ": "p", "ש": "a", "ד": "s", "ג": "d", "כ": "f",
+        "ע": "g", "י": "h", "ח": "j", "ל": "k", "ך": "l", "ז": "z", "ס": "x",
+        "ב": "c", "ה": "v", "נ": "b", "מ": "n", "צ": "m", "ת": ",", "ץ": ".",
+        ".": "/", "ף": ";", ",": "'"
+    ]
     
     // MARK: - Public API
     
@@ -115,8 +144,14 @@ public final class ConversionService {
     
     // MARK: - Character Classification
     
-    /// Check if a character is part of a word (Hebrew or English letter)
+    /// Check if a character is part of a word
+    /// Includes: A-Z, a-z, Hebrew letters, AND any character that appears in the maps
+    /// (e.g., apostrophe, slash, semicolon, comma, period which are mapped keys)
     public func isWordCharacter(_ char: Character) -> Bool {
+        if mappedCharacters.contains(char) {
+            return true
+        }
+        
         guard let scalar = char.unicodeScalars.first else { return false }
         let code = scalar.value
         

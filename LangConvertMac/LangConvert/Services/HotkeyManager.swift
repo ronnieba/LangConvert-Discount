@@ -1,6 +1,19 @@
 import AppKit
 import Carbon
 
+/// Global storage for the hotkey callback (required for C callback)
+private var globalHotkeyCallback: (() -> Void)?
+
+/// C-compatible event handler for Carbon hotkey events
+private func hotkeyEventHandler(
+    nextHandler: EventHandlerCallRef?,
+    event: EventRef?,
+    userData: UnsafeMutableRawPointer?
+) -> OSStatus {
+    globalHotkeyCallback?()
+    return noErr
+}
+
 /// Manages global hotkey registration and handling
 public final class HotkeyManager {
     
@@ -8,7 +21,12 @@ public final class HotkeyManager {
     
     private var hotKeyRef: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
-    private var hotkeyCallback: (() -> Void)?
+    
+    /// Whether hotkey registration succeeded
+    @Published public private(set) var isHotkeyRegistered: Bool = false
+    
+    /// Last error message if registration failed
+    @Published public private(set) var lastError: String?
     
     private init() {}
     
@@ -16,7 +34,7 @@ public final class HotkeyManager {
     
     /// Register the global hotkey with the specified callback
     public func register(callback: @escaping () -> Void) {
-        hotkeyCallback = callback
+        globalHotkeyCallback = callback
         
         let settings = Settings.shared
         registerHotkey(keyCode: settings.hotkeyKeyCode, modifiers: settings.hotkeyModifiers)
@@ -36,21 +54,35 @@ public final class HotkeyManager {
     /// Unregister the current hotkey
     public func unregister() {
         unregisterHotkey()
-        hotkeyCallback = nil
+        globalHotkeyCallback = nil
+    }
+    
+    /// Re-register the hotkey (useful after accessibility changes)
+    public func reregister() {
+        guard globalHotkeyCallback != nil else { return }
+        
+        unregisterHotkey()
+        let settings = Settings.shared
+        registerHotkey(keyCode: settings.hotkeyKeyCode, modifiers: settings.hotkeyModifiers)
     }
     
     // MARK: - Accessibility Check
     
-    /// Check if accessibility permission is granted
+    /// Check if accessibility permission is granted (without prompting)
     public static var hasAccessibilityPermission: Bool {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: false] as CFDictionary
+        return AXIsProcessTrusted()
+    }
+    
+    /// Check accessibility with optional prompt
+    public static func checkAccessibilityPermission(prompt: Bool) -> Bool {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: prompt] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
     }
     
     /// Request accessibility permission (shows system prompt)
     public static func requestAccessibilityPermission() {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
-        AXIsProcessTrustedWithOptions(options)
+        _ = AXIsProcessTrustedWithOptions(options)
     }
     
     /// Open System Preferences to Accessibility pane
@@ -65,52 +97,83 @@ public final class HotkeyManager {
     private func registerHotkey(keyCode: UInt32, modifiers: UInt32) {
         unregisterHotkey()
         
-        let carbonModifiers = convertToCarbonModifiers(modifiers)
+        lastError = nil
+        isHotkeyRegistered = false
         
-        var gMyHotKeyID = EventHotKeyID()
-        gMyHotKeyID.signature = OSType(fourCharCode("LCNV"))
-        gMyHotKeyID.id = 1
-        
-        var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        
-        let handlerBlock: EventHandlerUPP = { _, event, _ -> OSStatus in
-            HotkeyManager.shared.handleHotkey()
-            return noErr
+        if !Self.hasAccessibilityPermission {
+            lastError = "Accessibility permission required"
+            print("[HotkeyManager] ERROR: Accessibility permission not granted")
+            return
         }
         
-        InstallEventHandler(
+        let carbonModifiers = convertToCarbonModifiers(modifiers)
+        
+        var hotKeyID = EventHotKeyID()
+        hotKeyID.signature = fourCharCode("LCNV")
+        hotKeyID.id = 1
+        
+        var eventType = EventTypeSpec(
+            eventClass: OSType(kEventClassKeyboard),
+            eventKind: UInt32(kEventHotKeyPressed)
+        )
+        
+        let handlerStatus = InstallEventHandler(
             GetApplicationEventTarget(),
-            handlerBlock,
+            hotkeyEventHandler,
             1,
             &eventType,
             nil,
             &eventHandler
         )
         
-        RegisterEventHotKey(
+        if handlerStatus != noErr {
+            lastError = "Failed to install event handler (OSStatus: \(handlerStatus))"
+            print("[HotkeyManager] ERROR: InstallEventHandler failed with status \(handlerStatus)")
+            return
+        }
+        
+        let registerStatus = RegisterEventHotKey(
             keyCode,
             carbonModifiers,
-            gMyHotKeyID,
+            hotKeyID,
             GetApplicationEventTarget(),
             0,
             &hotKeyRef
         )
+        
+        if registerStatus != noErr {
+            lastError = "Failed to register hotkey (OSStatus: \(registerStatus))"
+            print("[HotkeyManager] ERROR: RegisterEventHotKey failed with status \(registerStatus)")
+            
+            if let handler = eventHandler {
+                RemoveEventHandler(handler)
+                eventHandler = nil
+            }
+            return
+        }
+        
+        isHotkeyRegistered = true
+        print("[HotkeyManager] Hotkey registered successfully: keyCode=\(keyCode), modifiers=\(modifiers)")
     }
     
     private func unregisterHotkey() {
         if let ref = hotKeyRef {
-            UnregisterEventHotKey(ref)
+            let status = UnregisterEventHotKey(ref)
+            if status != noErr {
+                print("[HotkeyManager] Warning: UnregisterEventHotKey returned \(status)")
+            }
             hotKeyRef = nil
         }
         
         if let handler = eventHandler {
-            RemoveEventHandler(handler)
+            let status = RemoveEventHandler(handler)
+            if status != noErr {
+                print("[HotkeyManager] Warning: RemoveEventHandler returned \(status)")
+            }
             eventHandler = nil
         }
-    }
-    
-    private func handleHotkey() {
-        hotkeyCallback?()
+        
+        isHotkeyRegistered = false
     }
     
     private func convertToCarbonModifiers(_ modifiers: UInt32) -> UInt32 {
@@ -127,10 +190,10 @@ public final class HotkeyManager {
 
 // MARK: - Helper
 
-private func fourCharCode(_ string: String) -> FourCharCode {
-    var result: FourCharCode = 0
-    for char in string.utf8 {
-        result = (result << 8) | FourCharCode(char)
+private func fourCharCode(_ string: String) -> OSType {
+    var result: OSType = 0
+    for char in string.utf8.prefix(4) {
+        result = (result << 8) | OSType(char)
     }
     return result
 }

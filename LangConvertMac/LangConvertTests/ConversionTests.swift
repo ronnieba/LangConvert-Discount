@@ -71,14 +71,25 @@ final class ConversionTests: XCTestCase {
     }
     
     func testIsWordCharacter() {
+        // Letters are word characters
         XCTAssertTrue(service.isWordCharacter("a"))
         XCTAssertTrue(service.isWordCharacter("Z"))
         XCTAssertTrue(service.isWordCharacter("א"))
         XCTAssertTrue(service.isWordCharacter("ת"))
+        
+        // Mapped punctuation should also be word characters
+        // (apostrophe, slash, semicolon, comma, period are all mapped)
+        XCTAssertTrue(service.isWordCharacter("'"), "Apostrophe should be word char (maps to w)")
+        XCTAssertTrue(service.isWordCharacter("/"), "Slash should be word char (maps to q)")
+        XCTAssertTrue(service.isWordCharacter(";"), "Semicolon should be word char (maps to ף)")
+        XCTAssertTrue(service.isWordCharacter(","), "Comma should be word char (maps to ת)")
+        XCTAssertTrue(service.isWordCharacter("."), "Period should be word char (maps to ץ)")
+        
+        // Non-mapped characters are not word characters
         XCTAssertFalse(service.isWordCharacter(" "))
         XCTAssertFalse(service.isWordCharacter("1"))
-        XCTAssertFalse(service.isWordCharacter("."))
-        XCTAssertFalse(service.isWordCharacter(","))
+        XCTAssertFalse(service.isWordCharacter("!"))
+        XCTAssertFalse(service.isWordCharacter("@"))
     }
     
     // MARK: - Pure Hebrew Conversion Tests
@@ -233,5 +244,52 @@ final class ConversionTests: XCTestCase {
         let gibberish = "אקדא@קסשצפךקץבםצ"
         let fixed = service.convert(gibberish)
         XCTAssertEqual(fixed, "test@example.com")
+    }
+    
+    // MARK: - Apostrophe/Mapped Punctuation Bug Fix Tests
+    
+    func testWorldWithApostrophe() {
+        // BUG FIX: User typed "world" on Hebrew keyboard
+        // 'w' maps to apostrophe, so result is "'םרךג"
+        // This should convert back to "world", not "'orld"
+        let gibberish = "'םרךג"
+        let fixed = service.convert(gibberish)
+        XCTAssertEqual(fixed, "world", "Apostrophe at start should convert to 'w'")
+    }
+    
+    func testEnglishToHebrewWorld() {
+        // Verify "world" converts correctly to Hebrew keyboard output
+        let result = service.convert("world")
+        XCTAssertEqual(result, "'םרךג", "'w' should map to apostrophe")
+    }
+    
+    func testSlashAtWordStart() {
+        // 'q' maps to '/', so "/קר" should be "qer" (like typing "qer" in Hebrew mode)
+        // Actually, typing "qer" on Hebrew keyboard: q->/, e->ק, r->ר
+        let gibberish = "/קר"
+        let fixed = service.convert(gibberish)
+        XCTAssertEqual(fixed, "qer", "Slash at start should convert to 'q'")
+    }
+    
+    func testMappedPunctuationInMiddle() {
+        // Test punctuation in the middle of a word
+        // "don't" on Hebrew keyboard: d->ג, o->ם, n->מ, '->comma, t->א
+        // So typing "don't" produces "גםמ,א"
+        // Converting back should give "don't"
+        let gibberish = "גםמ,א"
+        let fixed = service.convert(gibberish)
+        XCTAssertEqual(fixed, "don't", "Mapped comma should convert to apostrophe")
+    }
+    
+    func testQwertyRowWithPunctuation() {
+        // Full test: "q/;'" on English should map to Hebrew
+        let english = "q/;'"
+        let hebrew = service.convert(english)
+        // q->/, /->., ;->ף, '->comma
+        XCTAssertEqual(hebrew, "/.ף,")
+        
+        // And reverse should work
+        let backToEnglish = service.convert(hebrew)
+        XCTAssertEqual(backToEnglish, "q/;'")
     }
 }
