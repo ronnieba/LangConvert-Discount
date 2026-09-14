@@ -48,6 +48,17 @@ final class StatusBarController: NSObject, ObservableObject {
                 self?.updateMenu()
             }
             .store(in: &cancellables)
+        
+        Settings.shared.$appearance
+            .sink { [weak self] _ in
+                self?.updateMenu()
+                self?.updatePreferencesWindowAppearance()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updatePreferencesWindowAppearance() {
+        preferencesWindow?.appearance = Settings.shared.appearance.nsAppearance
     }
     
     // MARK: - Status Icon
@@ -119,6 +130,10 @@ final class StatusBarController: NSObject, ObservableObject {
         langItem.target = self
         menu.addItem(langItem)
         
+        let themeItem = NSMenuItem(title: settings.themeToggleString, action: #selector(toggleTheme), keyEquivalent: "")
+        themeItem.target = self
+        menu.addItem(themeItem)
+        
         menu.addItem(NSMenuItem.separator())
         
         if !HotkeyManager.hasAccessibilityPermission {
@@ -158,7 +173,7 @@ final class StatusBarController: NSObject, ObservableObject {
             let contentView = PreferencesView()
             
             preferencesWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 340, height: 500),
+                contentRect: NSRect(x: 0, y: 0, width: 340, height: 520),
                 styleMask: [.titled, .closable, .miniaturizable],
                 backing: .buffered,
                 defer: false
@@ -170,6 +185,7 @@ final class StatusBarController: NSObject, ObservableObject {
             preferencesWindow?.isReleasedWhenClosed = false
         }
         
+        preferencesWindow?.appearance = Settings.shared.appearance.nsAppearance
         preferencesWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -177,6 +193,10 @@ final class StatusBarController: NSObject, ObservableObject {
     @objc private func toggleLanguage() {
         let settings = Settings.shared
         settings.language = settings.language == .english ? .hebrew : .english
+    }
+    
+    @objc private func toggleTheme() {
+        Settings.shared.toggleTheme()
     }
     
     @objc private func openAccessibility() {
