@@ -40,8 +40,8 @@
 		A1000006000 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		A1000007000 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		A1000008000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A1000009000 /* DiscountLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DiscountLogo.png; path = ../../DiscountLogo.png; sourceTree = "<group>"; };
-		A100000A000 /* DiscountLogo_Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DiscountLogo_Dark.png; path = ../../DiscountLogo_Dark.png; sourceTree = "<group>"; };
+		A1000009000 /* DiscountLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DiscountLogo.png; sourceTree = "<group>"; };
+		A100000A000 /* DiscountLogo_Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = DiscountLogo_Dark.png; sourceTree = "<group>"; };
 		A100000B000 /* ConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionTests.swift; sourceTree = "<group>"; };
 		A100000D000 /* LangConvertTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LangConvertTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A100000E000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -404,11 +404,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LangConvert/LangConvert.entitlements;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LangConvert/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -420,6 +422,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.discountbank.langconvert;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -456,13 +459,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.discountbank.langconvert.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LangConvert.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LangConvert";

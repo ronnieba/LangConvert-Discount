@@ -68,7 +68,7 @@ public final class HotkeyManager {
         let carbonModifiers = convertToCarbonModifiers(modifiers)
         
         var gMyHotKeyID = EventHotKeyID()
-        gMyHotKeyID.signature = OSType(fourCharCode: "LCNV")
+        gMyHotKeyID.signature = OSType(fourCharCode("LCNV"))
         gMyHotKeyID.id = 1
         
         var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
