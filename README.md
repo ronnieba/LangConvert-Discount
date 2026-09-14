@@ -79,7 +79,8 @@
 - macOS 13.0 (Ventura) ומעלה
 - Xcode 15.0 ומעלה
 
-**בנייה מקוד מקור:**
+**בנייה והתקנה (מומלץ):**
+
 ```bash
 cd LangConvertMac
 open LangConvert.xcodeproj
@@ -88,8 +89,23 @@ open LangConvert.xcodeproj
 ב-Xcode:
 1. בחר את ה-target "LangConvert"
 2. בחר "My Mac" כמכשיר היעד
-3. לחץ על **Product → Build** (⌘B)
-4. לחץ על **Product → Run** (⌘R)
+3. לחץ על **Product → Archive** (⌘⇧B) - לבנייה Release
+4. ב-Organizer: **Distribute App → Copy App**
+5. העתק `LangConvert.app` ל-`/Applications/`
+
+**⚠️ חשוב:** הרץ את האפליקציה **מ-/Applications** ולא מ-DerivedData או Debug build:
+```bash
+# העתקה ל-Applications
+cp -R ~/Library/Developer/Xcode/DerivedData/LangConvert-*/Build/Products/Release/LangConvert.app /Applications/
+
+# או ידנית מ-Finder אחרי Archive
+```
+
+**לפיתוח מקומי בלבד:**
+```bash
+# Debug build (לא מומלץ לשימוש יומי)
+# ב-Xcode: Product → Run (⌘R)
+```
 
 **הרצת טסטים:**
 ```bash
