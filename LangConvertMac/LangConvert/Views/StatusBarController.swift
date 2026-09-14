@@ -67,7 +67,14 @@ final class StatusBarController: NSObject, ObservableObject {
         guard let button = statusItem.button else { return }
         
         let isEnabled = Settings.shared.isEnabled
-        let symbolName = isEnabled ? "character.textbox" : "character.textbox"
+        let hasAccess = HotkeyManager.hasAccessibilityPermission
+        
+        let symbolName: String
+        if !hasAccess {
+            symbolName = "exclamationmark.triangle"
+        } else {
+            symbolName = "character.textbox"
+        }
         
         if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "LangConvert") {
             let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
@@ -76,20 +83,23 @@ final class StatusBarController: NSObject, ObservableObject {
             button.image = configuredImage
         }
         
-        if isEnabled {
-            button.contentTintColor = nil
-        } else {
-            button.appearsDisabled = true
-        }
-        
-        button.appearsDisabled = !isEnabled
+        button.appearsDisabled = !isEnabled || !hasAccess
         
         let settings = Settings.shared
         let hotkeyStr = settings.hotkeyDisplayString
+        var tooltipLines: [String] = []
+        
+        if !hasAccess {
+            tooltipLines.append("⚠️ " + settings.localized(.accessibilityRequired))
+        }
+        
         let status = isEnabled
             ? settings.localized(.statusEnabled)
             : settings.localized(.statusDisabled)
-        button.toolTip = "LangConvert - \(status)\n\(hotkeyStr)"
+        tooltipLines.append("LangConvert - \(status)")
+        tooltipLines.append(hotkeyStr)
+        
+        button.toolTip = tooltipLines.joined(separator: "\n")
     }
     
     // MARK: - Menu
@@ -98,7 +108,26 @@ final class StatusBarController: NSObject, ObservableObject {
         menu.removeAllItems()
         
         let settings = Settings.shared
-        let isHebrew = settings.language == .hebrew
+        let hasAccess = HotkeyManager.hasAccessibilityPermission
+        
+        if !hasAccess {
+            let warningItem = NSMenuItem(title: "⚠️ " + settings.localized(.accessibilityRequired), action: #selector(openAccessibility), keyEquivalent: "")
+            warningItem.target = self
+            menu.addItem(warningItem)
+            
+            let hintItem = NSMenuItem(
+                title: settings.language == .hebrew
+                    ? "לחץ כדי לתקן"
+                    : "Click to fix",
+                action: #selector(openAccessibility),
+                keyEquivalent: ""
+            )
+            hintItem.target = self
+            hintItem.indentationLevel = 1
+            menu.addItem(hintItem)
+            
+            menu.addItem(NSMenuItem.separator())
+        }
         
         let statusTitle = settings.isEnabled
             ? settings.localized(.statusEnabled)
@@ -135,13 +164,6 @@ final class StatusBarController: NSObject, ObservableObject {
         menu.addItem(themeItem)
         
         menu.addItem(NSMenuItem.separator())
-        
-        if !HotkeyManager.hasAccessibilityPermission {
-            let accessItem = NSMenuItem(title: settings.localized(.accessibilityRequired), action: #selector(openAccessibility), keyEquivalent: "")
-            accessItem.target = self
-            menu.addItem(accessItem)
-            menu.addItem(NSMenuItem.separator())
-        }
         
         let quitItem = NSMenuItem(title: settings.localized(.quit), action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self

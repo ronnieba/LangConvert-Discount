@@ -118,10 +118,46 @@ struct PreferencesView: View {
                     .foregroundColor(settings.isEnabled ? .green : .red)
             }
             
+            if !HotkeyManager.hasAccessibilityPermission {
+                accessibilityWarning
+            }
+            
             Text(settings.localized(.tip))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
+    }
+    
+    private var accessibilityWarning: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 4) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+                Text(settings.localized(.accessibilityRequired))
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.orange)
+            }
+            
+            Text(isHebrew
+                 ? "הקיצור לא יעבוד עד שתינתן הרשאה"
+                 : "Hotkey won't work until permission is granted")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            Button(action: {
+                HotkeyManager.requestAccessibilityPermission()
+            }) {
+                Text(settings.localized(.openSystemPreferences))
+                    .font(.caption)
+            }
+            .buttonStyle(.bordered)
+            .tint(.orange)
+        }
+        .padding(10)
+        .background(Color.orange.opacity(0.1))
+        .cornerRadius(8)
     }
     
     // MARK: - Hotkey Section
