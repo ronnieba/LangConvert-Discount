@@ -1,0 +1,189 @@
+import AppKit
+import SwiftUI
+import Combine
+
+/// Manages the menu bar status item and its menu
+final class StatusBarController: NSObject, ObservableObject {
+    
+    private var statusItem: NSStatusItem!
+    private var menu: NSMenu!
+    private var preferencesWindow: NSWindow?
+    private var cancellables = Set<AnyCancellable>()
+    
+    override init() {
+        super.init()
+        setupStatusItem()
+        setupMenu()
+        observeSettings()
+    }
+    
+    // MARK: - Setup
+    
+    private func setupStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        
+        if let button = statusItem.button {
+            updateStatusIcon()
+            button.action = #selector(statusItemClicked)
+            button.target = self
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        }
+    }
+    
+    private func setupMenu() {
+        menu = NSMenu()
+        updateMenu()
+    }
+    
+    private func observeSettings() {
+        Settings.shared.$isEnabled
+            .sink { [weak self] _ in
+                self?.updateStatusIcon()
+                self?.updateMenu()
+            }
+            .store(in: &cancellables)
+        
+        Settings.shared.$language
+            .sink { [weak self] _ in
+                self?.updateMenu()
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: - Status Icon
+    
+    private func updateStatusIcon() {
+        guard let button = statusItem.button else { return }
+        
+        let isEnabled = Settings.shared.isEnabled
+        let symbolName = isEnabled ? "character.textbox" : "character.textbox"
+        
+        if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "LangConvert") {
+            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+            let configuredImage = image.withSymbolConfiguration(config)
+            configuredImage?.isTemplate = true
+            button.image = configuredImage
+        }
+        
+        if isEnabled {
+            button.contentTintColor = nil
+        } else {
+            button.appearsDisabled = true
+        }
+        
+        button.appearsDisabled = !isEnabled
+        
+        let settings = Settings.shared
+        let hotkeyStr = settings.hotkeyDisplayString
+        let status = isEnabled
+            ? settings.localized(.statusEnabled)
+            : settings.localized(.statusDisabled)
+        button.toolTip = "LangConvert - \(status)\n\(hotkeyStr)"
+    }
+    
+    // MARK: - Menu
+    
+    private func updateMenu() {
+        menu.removeAllItems()
+        
+        let settings = Settings.shared
+        let isHebrew = settings.language == .hebrew
+        
+        let statusTitle = settings.isEnabled
+            ? settings.localized(.statusEnabled)
+            : settings.localized(.statusDisabled)
+        let statusItem = NSMenuItem(title: statusTitle, action: nil, keyEquivalent: "")
+        statusItem.isEnabled = false
+        menu.addItem(statusItem)
+        
+        let hotkeyItem = NSMenuItem(title: settings.hotkeyDisplayString, action: nil, keyEquivalent: "")
+        hotkeyItem.isEnabled = false
+        menu.addItem(hotkeyItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        let toggleTitle = settings.isEnabled
+            ? settings.localized(.disable)
+            : settings.localized(.enable)
+        let toggleItem = NSMenuItem(title: toggleTitle, action: #selector(toggleEnabled), keyEquivalent: "")
+        toggleItem.target = self
+        menu.addItem(toggleItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        let prefsItem = NSMenuItem(title: settings.localized(.showPreferences), action: #selector(showPreferences), keyEquivalent: ",")
+        prefsItem.target = self
+        menu.addItem(prefsItem)
+        
+        let langItem = NSMenuItem(title: "עברית / English", action: #selector(toggleLanguage), keyEquivalent: "")
+        langItem.target = self
+        menu.addItem(langItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        if !HotkeyManager.hasAccessibilityPermission {
+            let accessItem = NSMenuItem(title: settings.localized(.accessibilityRequired), action: #selector(openAccessibility), keyEquivalent: "")
+            accessItem.target = self
+            menu.addItem(accessItem)
+            menu.addItem(NSMenuItem.separator())
+        }
+        
+        let quitItem = NSMenuItem(title: settings.localized(.quit), action: #selector(quit), keyEquivalent: "q")
+        quitItem.target = self
+        menu.addItem(quitItem)
+    }
+    
+    // MARK: - Actions
+    
+    @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
+        guard let event = NSApp.currentEvent else { return }
+        
+        if event.type == .rightMouseUp {
+            statusItem.menu = menu
+            statusItem.button?.performClick(nil)
+            statusItem.menu = nil
+        } else {
+            statusItem.menu = menu
+            statusItem.button?.performClick(nil)
+            statusItem.menu = nil
+        }
+    }
+    
+    @objc private func toggleEnabled() {
+        Settings.shared.isEnabled.toggle()
+    }
+    
+    @objc private func showPreferences() {
+        if preferencesWindow == nil {
+            let contentView = PreferencesView()
+            
+            preferencesWindow = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 340, height: 500),
+                styleMask: [.titled, .closable, .miniaturizable],
+                backing: .buffered,
+                defer: false
+            )
+            
+            preferencesWindow?.title = "LangConvert"
+            preferencesWindow?.contentView = NSHostingView(rootView: contentView)
+            preferencesWindow?.center()
+            preferencesWindow?.isReleasedWhenClosed = false
+        }
+        
+        preferencesWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+    
+    @objc private func toggleLanguage() {
+        let settings = Settings.shared
+        settings.language = settings.language == .english ? .hebrew : .english
+    }
+    
+    @objc private func openAccessibility() {
+        HotkeyManager.openAccessibilityPreferences()
+    }
+    
+    @objc private func quit() {
+        NSApp.terminate(nil)
+    }
+}
