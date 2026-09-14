@@ -26,6 +26,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
     }
     
+    func applicationDidBecomeActive(_ notification: Notification) {
+        HotkeyManager.shared.refreshAccessibilityStatus()
+        HotkeyManager.shared.reregister()
+        
+        NotificationCenter.default.post(name: .accessibilityPermissionChanged, object: nil)
+    }
+    
     private func checkAccessibilityPermission() {
         if !HotkeyManager.hasAccessibilityPermission {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

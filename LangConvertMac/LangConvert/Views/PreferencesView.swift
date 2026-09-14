@@ -3,6 +3,7 @@ import SwiftUI
 /// Main preferences window view with Discount Bank branding
 struct PreferencesView: View {
     @ObservedObject var settings = Settings.shared
+    @ObservedObject var hotkeyManager = HotkeyManager.shared
     @State private var showingHotkeyAlert = false
     @Environment(\.colorScheme) var systemColorScheme
     
@@ -44,6 +45,9 @@ struct PreferencesView: View {
         .preferredColorScheme(settings.appearance.colorScheme)
         .alert(settings.localized(.hotkeyUpdated), isPresented: $showingHotkeyAlert) {
             Button("OK", role: .cancel) { }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .accessibilityPermissionChanged)) { _ in
+            hotkeyManager.objectWillChange.send()
         }
     }
     
@@ -118,7 +122,7 @@ struct PreferencesView: View {
                     .foregroundColor(settings.isEnabled ? .green : .red)
             }
             
-            if !HotkeyManager.hasAccessibilityPermission {
+            if !hotkeyManager.accessibilityGranted {
                 accessibilityWarning
             }
             
@@ -140,8 +144,8 @@ struct PreferencesView: View {
             }
             
             Text(isHebrew
-                 ? "הקיצור לא יעבוד עד שתינתן הרשאה"
-                 : "Hotkey won't work until permission is granted")
+                 ? "מצב מוגבל: העתק ידנית, הפעל קיצור, הדבק"
+                 : "Limited mode: Copy manually, trigger hotkey, paste")
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -229,7 +233,7 @@ struct PreferencesView: View {
                 .buttonStyle(.bordered)
             }
             
-            if !HotkeyManager.hasAccessibilityPermission {
+            if !hotkeyManager.accessibilityGranted {
                 Button(action: {
                     HotkeyManager.openAccessibilityPreferences()
                 }) {

@@ -1,5 +1,11 @@
 import AppKit
 import Carbon
+import Combine
+
+/// Notification posted when accessibility permission status changes
+public extension Notification.Name {
+    static let accessibilityPermissionChanged = Notification.Name("LangConvertAccessibilityPermissionChanged")
+}
 
 /// Global storage for the hotkey callback (required for C callback)
 private var globalHotkeyCallback: (() -> Void)?
@@ -15,12 +21,14 @@ private func hotkeyEventHandler(
 }
 
 /// Manages global hotkey registration and handling
-public final class HotkeyManager {
+public final class HotkeyManager: ObservableObject {
     
     public static let shared = HotkeyManager()
     
     private var hotKeyRef: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
+    private var accessibilityPollTimer: Timer?
+    private var lastKnownAccessibilityState: Bool = false
     
     /// Whether hotkey registration succeeded
     @Published public private(set) var isHotkeyRegistered: Bool = false
@@ -28,7 +36,18 @@ public final class HotkeyManager {
     /// Last error message if registration failed
     @Published public private(set) var lastError: String?
     
-    private init() {}
+    /// Current accessibility permission state (updated by polling)
+    @Published public private(set) var accessibilityGranted: Bool = false
+    
+    private init() {
+        lastKnownAccessibilityState = AXIsProcessTrusted()
+        accessibilityGranted = lastKnownAccessibilityState
+        startAccessibilityPolling()
+    }
+    
+    deinit {
+        stopAccessibilityPolling()
+    }
     
     // MARK: - Public API
     
@@ -57,13 +76,48 @@ public final class HotkeyManager {
         globalHotkeyCallback = nil
     }
     
-    /// Re-register the hotkey (useful after accessibility changes)
+    /// Re-register the hotkey (useful after accessibility changes or app activation)
     public func reregister() {
         guard globalHotkeyCallback != nil else { return }
         
         unregisterHotkey()
         let settings = Settings.shared
         registerHotkey(keyCode: settings.hotkeyKeyCode, modifiers: settings.hotkeyModifiers)
+    }
+    
+    // MARK: - Accessibility Polling
+    
+    private func startAccessibilityPolling() {
+        accessibilityPollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
+            self?.checkAccessibilityChange()
+        }
+    }
+    
+    private func stopAccessibilityPolling() {
+        accessibilityPollTimer?.invalidate()
+        accessibilityPollTimer = nil
+    }
+    
+    private func checkAccessibilityChange() {
+        let currentState = AXIsProcessTrusted()
+        
+        if currentState != lastKnownAccessibilityState {
+            lastKnownAccessibilityState = currentState
+            accessibilityGranted = currentState
+            
+            print("[HotkeyManager] Accessibility state changed: \(currentState)")
+            
+            NotificationCenter.default.post(name: .accessibilityPermissionChanged, object: nil)
+            
+            if currentState {
+                reregister()
+            }
+        }
+    }
+    
+    /// Force check accessibility status now
+    public func refreshAccessibilityStatus() {
+        checkAccessibilityChange()
     }
     
     // MARK: - Accessibility Check
@@ -100,10 +154,12 @@ public final class HotkeyManager {
         lastError = nil
         isHotkeyRegistered = false
         
-        if !Self.hasAccessibilityPermission {
-            lastError = "Accessibility permission required"
-            print("[HotkeyManager] ERROR: Accessibility permission not granted")
-            return
+        let hasAccess = AXIsProcessTrusted()
+        accessibilityGranted = hasAccess
+        
+        if !hasAccess {
+            print("[HotkeyManager] WARNING: Accessibility permission not granted (AXIsProcessTrusted=false)")
+            print("[HotkeyManager] Attempting hotkey registration anyway (may work on some systems)")
         }
         
         let carbonModifiers = convertToCarbonModifiers(modifiers)
@@ -153,7 +209,13 @@ public final class HotkeyManager {
         }
         
         isHotkeyRegistered = true
-        print("[HotkeyManager] Hotkey registered successfully: keyCode=\(keyCode), modifiers=\(modifiers)")
+        
+        if hasAccess {
+            print("[HotkeyManager] Hotkey registered successfully: keyCode=\(keyCode), modifiers=\(modifiers)")
+        } else {
+            print("[HotkeyManager] Hotkey registered (AX not confirmed): keyCode=\(keyCode), modifiers=\(modifiers)")
+            lastError = "Hotkey registered but accessibility not confirmed"
+        }
     }
     
     private func unregisterHotkey() {
