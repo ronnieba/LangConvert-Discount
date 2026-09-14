@@ -1,0 +1,522 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1000001001 /* LangConvertApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000 /* LangConvertApp.swift */; };
+		A1000002001 /* ConversionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002000 /* ConversionService.swift */; };
+		A1000003001 /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003000 /* ClipboardManager.swift */; };
+		A1000004001 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004000 /* HotkeyManager.swift */; };
+		A1000005001 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000005000 /* Settings.swift */; };
+		A1000006001 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000006000 /* PreferencesView.swift */; };
+		A1000007001 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000007000 /* StatusBarController.swift */; };
+		A1000008001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000008000 /* Assets.xcassets */; };
+		A1000009001 /* DiscountLogo.png in Resources */ = {isa = PBXBuildFile; fileRef = A1000009000 /* DiscountLogo.png */; };
+		A100000A001 /* DiscountLogo_Dark.png in Resources */ = {isa = PBXBuildFile; fileRef = A100000A000 /* DiscountLogo_Dark.png */; };
+		A100000B001 /* ConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100000B000 /* ConversionTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A100000C000 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1000000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1000000002;
+			remoteInfo = LangConvert;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A1000000003 /* LangConvert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LangConvert.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000001000 /* LangConvertApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangConvertApp.swift; sourceTree = "<group>"; };
+		A1000002000 /* ConversionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionService.swift; sourceTree = "<group>"; };
+		A1000003000 /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
+		A1000004000 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		A1000005000 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		A1000006000 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		A1000007000 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		A1000008000 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1000009000 /* DiscountLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DiscountLogo.png; path = ../../DiscountLogo.png; sourceTree = "<group>"; };
+		A100000A000 /* DiscountLogo_Dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DiscountLogo_Dark.png; path = ../../DiscountLogo_Dark.png; sourceTree = "<group>"; };
+		A100000B000 /* ConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionTests.swift; sourceTree = "<group>"; };
+		A100000D000 /* LangConvertTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LangConvertTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A100000E000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A100000F000 /* LangConvert.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LangConvert.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A100000D001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1000000001 = {
+			isa = PBXGroup;
+			children = (
+				A1000010000 /* LangConvert */,
+				A1000011000 /* LangConvertTests */,
+				A1000000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1000000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000003 /* LangConvert.app */,
+				A100000D000 /* LangConvertTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1000010000 /* LangConvert */ = {
+			isa = PBXGroup;
+			children = (
+				A1000012000 /* App */,
+				A1000013000 /* Views */,
+				A1000014000 /* Services */,
+				A1000015000 /* Models */,
+				A1000016000 /* Resources */,
+				A100000E000 /* Info.plist */,
+				A100000F000 /* LangConvert.entitlements */,
+			);
+			path = LangConvert;
+			sourceTree = "<group>";
+		};
+		A1000011000 /* LangConvertTests */ = {
+			isa = PBXGroup;
+			children = (
+				A100000B000 /* ConversionTests.swift */,
+			);
+			path = LangConvertTests;
+			sourceTree = "<group>";
+		};
+		A1000012000 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001000 /* LangConvertApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A1000013000 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A1000006000 /* PreferencesView.swift */,
+				A1000007000 /* StatusBarController.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A1000014000 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1000002000 /* ConversionService.swift */,
+				A1000003000 /* ClipboardManager.swift */,
+				A1000004000 /* HotkeyManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A1000015000 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1000005000 /* Settings.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A1000016000 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1000008000 /* Assets.xcassets */,
+				A1000009000 /* DiscountLogo.png */,
+				A100000A000 /* DiscountLogo_Dark.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1000000002 /* LangConvert */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1000000006 /* Build configuration list for PBXNativeTarget "LangConvert" */;
+			buildPhases = (
+				A1000000007 /* Sources */,
+				A1000000004 /* Frameworks */,
+				A1000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LangConvert;
+			productName = LangConvert;
+			productReference = A1000000003 /* LangConvert.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A100000D002 /* LangConvertTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A100000D003 /* Build configuration list for PBXNativeTarget "LangConvertTests" */;
+			buildPhases = (
+				A100000D004 /* Sources */,
+				A100000D001 /* Frameworks */,
+				A100000D005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A100000C001 /* PBXTargetDependency */,
+			);
+			name = LangConvertTests;
+			productName = LangConvertTests;
+			productReference = A100000D000 /* LangConvertTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1000000000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A1000000002 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					A100000D002 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = A1000000002;
+					};
+				};
+			};
+			buildConfigurationList = A1000000009 /* Build configuration list for PBXProject "LangConvert" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				he,
+			);
+			mainGroup = A1000000001;
+			productRefGroup = A1000000005 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1000000002 /* LangConvert */,
+				A100000D002 /* LangConvertTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000008001 /* Assets.xcassets in Resources */,
+				A1000009001 /* DiscountLogo.png in Resources */,
+				A100000A001 /* DiscountLogo_Dark.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A100000D005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000001001 /* LangConvertApp.swift in Sources */,
+				A1000002001 /* ConversionService.swift in Sources */,
+				A1000003001 /* ClipboardManager.swift in Sources */,
+				A1000004001 /* HotkeyManager.swift in Sources */,
+				A1000005001 /* Settings.swift in Sources */,
+				A1000006001 /* PreferencesView.swift in Sources */,
+				A1000007001 /* StatusBarController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A100000D004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A100000B001 /* ConversionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A100000C001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1000000002 /* LangConvert */;
+			targetProxy = A100000C000 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A100000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A100000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		A100000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LangConvert/LangConvert.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LangConvert/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Ben-Avi Ronnie. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.discountbank.langconvert;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A100000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LangConvert/LangConvert.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LangConvert/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Ben-Avi Ronnie. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.discountbank.langconvert;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A100000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.discountbank.langconvert.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LangConvert.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LangConvert";
+			};
+			name = Debug;
+		};
+		A100000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.discountbank.langconvert.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LangConvert.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LangConvert";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1000000006 /* Build configuration list for PBXNativeTarget "LangConvert" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000000C /* Debug */,
+				A100000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1000000009 /* Build configuration list for PBXProject "LangConvert" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000000A /* Debug */,
+				A100000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A100000D003 /* Build configuration list for PBXNativeTarget "LangConvertTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000000E /* Debug */,
+				A100000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1000000000 /* Project object */;
+}
