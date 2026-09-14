@@ -256,6 +256,7 @@ public enum LocalizedKey {
     case openSystemPreferences
     case cancel
     case hotkeyUpdated
+    case hotkeyNotRegistered
     case darkMode
     case lightMode
     case systemAppearance
@@ -284,6 +285,7 @@ public enum LocalizedKey {
         case .openSystemPreferences: return "Open System Preferences"
         case .cancel: return "Cancel"
         case .hotkeyUpdated: return "Hotkey updated!"
+        case .hotkeyNotRegistered: return "Hotkey Not Registered"
         case .darkMode: return "Dark Mode"
         case .lightMode: return "Light Mode"
         case .systemAppearance: return "System"
@@ -314,6 +316,7 @@ public enum LocalizedKey {
         case .openSystemPreferences: return "פתח הגדרות מערכת"
         case .cancel: return "ביטול"
         case .hotkeyUpdated: return "הקיצור עודכן!"
+        case .hotkeyNotRegistered: return "קיצור לא נרשם"
         case .darkMode: return "ערכה כהה"
         case .lightMode: return "ערכה בהירה"
         case .systemAppearance: return "מערכת"
