@@ -4,10 +4,20 @@ import SwiftUI
 struct PreferencesView: View {
     @ObservedObject var settings = Settings.shared
     @State private var showingHotkeyAlert = false
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) var systemColorScheme
     
     private var isHebrew: Bool {
         settings.language == .hebrew
+    }
+    
+    /// Effective color scheme based on user setting or system
+    private var effectiveColorScheme: ColorScheme {
+        settings.appearance.colorScheme ?? systemColorScheme
+    }
+    
+    /// Whether the effective appearance is dark (for logo selection)
+    private var isDarkAppearance: Bool {
+        settings.appearance.isDark(systemIsDark: systemColorScheme == .dark)
     }
     
     var body: some View {
@@ -31,6 +41,7 @@ struct PreferencesView: View {
         .padding(20)
         .frame(width: 340)
         .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
+        .preferredColorScheme(settings.appearance.colorScheme)
         .alert(settings.localized(.hotkeyUpdated), isPresented: $showingHotkeyAlert) {
             Button("OK", role: .cancel) { }
         }
@@ -54,7 +65,7 @@ struct PreferencesView: View {
     }
     
     private func loadLogo() -> NSImage? {
-        let logoName = colorScheme == .dark ? "DiscountLogo_Dark" : "DiscountLogo"
+        let logoName = isDarkAppearance ? "DiscountLogo_Dark" : "DiscountLogo"
         
         if let bundleImage = NSImage(named: logoName) {
             return bundleImage
@@ -169,6 +180,14 @@ struct PreferencesView: View {
                 
                 Button(action: toggleLanguage) {
                     Text("עברית / English")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+            
+            HStack(spacing: 12) {
+                Button(action: { settings.toggleTheme() }) {
+                    Text(settings.themeToggleString)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)

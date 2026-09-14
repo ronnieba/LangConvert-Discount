@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import AppKit
 import ServiceManagement
 
 /// Supported UI languages
@@ -11,6 +12,40 @@ public enum AppLanguage: String, CaseIterable, Codable {
         switch self {
         case .english: return "English"
         case .hebrew: return "עברית"
+        }
+    }
+}
+
+/// App appearance mode
+public enum AppAppearance: String, CaseIterable, Codable {
+    case system = "System"
+    case light = "Light"
+    case dark = "Dark"
+    
+    /// Returns the NSAppearance to apply, or nil for system default
+    var nsAppearance: NSAppearance? {
+        switch self {
+        case .system: return nil
+        case .light: return NSAppearance(named: .aqua)
+        case .dark: return NSAppearance(named: .darkAqua)
+        }
+    }
+    
+    /// Returns the effective color scheme for SwiftUI
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+    
+    /// Check if this appearance is effectively dark (for logo selection)
+    func isDark(systemIsDark: Bool) -> Bool {
+        switch self {
+        case .system: return systemIsDark
+        case .light: return false
+        case .dark: return true
         }
     }
 }
@@ -55,6 +90,13 @@ public final class Settings: ObservableObject {
         }
     }
     
+    @Published public var appearance: AppAppearance {
+        didSet {
+            defaults.set(appearance.rawValue, forKey: Keys.appearance)
+            applyAppearance()
+        }
+    }
+    
     // MARK: - Keys
     
     private enum Keys {
@@ -65,6 +107,7 @@ public final class Settings: ObservableObject {
         static let hotkeyKeyCode = "hotkeyKeyCode"
         static let hotkeyModifiers = "hotkeyModifiers"
         static let openAtLogin = "openAtLogin"
+        static let appearance = "appearance"
     }
     
     // MARK: - Default Hotkey: ⌃⌥1 (Control+Option+1)
@@ -91,6 +134,38 @@ public final class Settings: ObservableObject {
         self.hotkeyModifiers = storedModifiers == 0 ? Self.defaultModifiers : storedModifiers
         
         self.openAtLogin = defaults.object(forKey: Keys.openAtLogin) as? Bool ?? false
+        
+        let appearanceRaw = defaults.string(forKey: Keys.appearance) ?? AppAppearance.system.rawValue
+        self.appearance = AppAppearance(rawValue: appearanceRaw) ?? .system
+        
+        applyAppearance()
+    }
+    
+    // MARK: - Appearance Management
+    
+    /// Apply the current appearance setting to the app
+    public func applyAppearance() {
+        NSApp.appearance = appearance.nsAppearance
+    }
+    
+    /// Toggle between Light and Dark (skipping System for simple toggle like Windows)
+    public func toggleTheme() {
+        switch appearance {
+        case .system, .light:
+            appearance = .dark
+        case .dark:
+            appearance = .light
+        }
+    }
+    
+    /// Get the display string for the theme toggle button
+    public var themeToggleString: String {
+        switch appearance {
+        case .system, .light:
+            return localized(.darkMode)
+        case .dark:
+            return localized(.lightMode)
+        }
     }
     
     // MARK: - Login Item Management
@@ -181,6 +256,9 @@ public enum LocalizedKey {
     case openSystemPreferences
     case cancel
     case hotkeyUpdated
+    case darkMode
+    case lightMode
+    case systemAppearance
     
     var english: String {
         switch self {
@@ -206,6 +284,9 @@ public enum LocalizedKey {
         case .openSystemPreferences: return "Open System Preferences"
         case .cancel: return "Cancel"
         case .hotkeyUpdated: return "Hotkey updated!"
+        case .darkMode: return "Dark Mode"
+        case .lightMode: return "Light Mode"
+        case .systemAppearance: return "System"
         }
     }
     
@@ -233,6 +314,9 @@ public enum LocalizedKey {
         case .openSystemPreferences: return "פתח הגדרות מערכת"
         case .cancel: return "ביטול"
         case .hotkeyUpdated: return "הקיצור עודכן!"
+        case .darkMode: return "ערכה כהה"
+        case .lightMode: return "ערכה בהירה"
+        case .systemAppearance: return "מערכת"
         }
     }
 }
