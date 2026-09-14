@@ -122,8 +122,8 @@ struct PreferencesView: View {
                     .foregroundColor(settings.isEnabled ? .green : .red)
             }
             
-            if !hotkeyManager.accessibilityGranted {
-                accessibilityWarning
+            if !hotkeyManager.isHotkeyRegistered {
+                hotkeyNotRegisteredWarning
             }
             
             Text(settings.localized(.tip))
@@ -132,20 +132,20 @@ struct PreferencesView: View {
         }
     }
     
-    private var accessibilityWarning: some View {
+    private var hotkeyNotRegisteredWarning: some View {
         VStack(spacing: 6) {
             HStack(spacing: 4) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundColor(.orange)
-                Text(settings.localized(.accessibilityRequired))
+                Text(settings.localized(.hotkeyNotRegistered))
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundColor(.orange)
             }
             
             Text(isHebrew
-                 ? "מצב מוגבל: העתק ידנית, הפעל קיצור, הדבק"
-                 : "Limited mode: Copy manually, trigger hotkey, paste")
+                 ? "לא ניתן לרשום קיצור מקשים. נסה להפעיל נגישות."
+                 : "Could not register hotkey. Try enabling Accessibility.")
                 .font(.caption2)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -233,7 +233,7 @@ struct PreferencesView: View {
                 .buttonStyle(.bordered)
             }
             
-            if !hotkeyManager.accessibilityGranted {
+            if !hotkeyManager.isHotkeyRegistered {
                 Button(action: {
                     HotkeyManager.openAccessibilityPreferences()
                 }) {

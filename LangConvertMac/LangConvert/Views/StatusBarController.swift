@@ -66,7 +66,7 @@ final class StatusBarController: NSObject, ObservableObject {
             object: nil
         )
         
-        HotkeyManager.shared.$accessibilityGranted
+        HotkeyManager.shared.$isHotkeyRegistered
             .sink { [weak self] _ in
                 DispatchQueue.main.async {
                     self?.updateStatusIcon()
@@ -93,10 +93,10 @@ final class StatusBarController: NSObject, ObservableObject {
         guard let button = statusItem.button else { return }
         
         let isEnabled = Settings.shared.isEnabled
-        let hasAccess = HotkeyManager.shared.accessibilityGranted
+        let hotkeyRegistered = HotkeyManager.shared.isHotkeyRegistered
         
         let symbolName: String
-        if !hasAccess {
+        if !hotkeyRegistered {
             symbolName = "exclamationmark.triangle"
         } else {
             symbolName = "character.textbox"
@@ -115,11 +115,11 @@ final class StatusBarController: NSObject, ObservableObject {
         let hotkeyStr = settings.hotkeyDisplayString
         var tooltipLines: [String] = []
         
-        if !hasAccess {
-            tooltipLines.append("⚠️ " + settings.localized(.accessibilityRequired))
+        if !hotkeyRegistered {
+            tooltipLines.append("⚠️ " + settings.localized(.hotkeyNotRegistered))
             tooltipLines.append(settings.language == .hebrew
-                ? "מצב מוגבל פעיל"
-                : "Limited mode active")
+                ? "לא ניתן לרשום קיצור מקשים"
+                : "Hotkey registration failed")
         }
         
         let status = isEnabled
@@ -137,28 +137,17 @@ final class StatusBarController: NSObject, ObservableObject {
         menu.removeAllItems()
         
         let settings = Settings.shared
-        let hasAccess = HotkeyManager.shared.accessibilityGranted
+        let hotkeyRegistered = HotkeyManager.shared.isHotkeyRegistered
         
-        if !hasAccess {
-            let warningItem = NSMenuItem(title: "⚠️ " + settings.localized(.accessibilityRequired), action: #selector(openAccessibility), keyEquivalent: "")
+        if !hotkeyRegistered {
+            let warningItem = NSMenuItem(title: "⚠️ " + settings.localized(.hotkeyNotRegistered), action: #selector(openAccessibility), keyEquivalent: "")
             warningItem.target = self
             menu.addItem(warningItem)
             
-            let modeItem = NSMenuItem(
-                title: settings.language == .hebrew
-                    ? "מצב מוגבל: העתק → קיצור → הדבק"
-                    : "Limited: Copy → Hotkey → Paste",
-                action: nil,
-                keyEquivalent: ""
-            )
-            modeItem.isEnabled = false
-            modeItem.indentationLevel = 1
-            menu.addItem(modeItem)
-            
             let hintItem = NSMenuItem(
                 title: settings.language == .hebrew
-                    ? "לחץ כדי לתקן"
-                    : "Click to fix",
+                    ? "לחץ כדי לפתוח הגדרות נגישות"
+                    : "Click to open Accessibility settings",
                 action: #selector(openAccessibility),
                 keyEquivalent: ""
             )
